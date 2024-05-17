@@ -26,5 +26,5 @@ public interface OrderDAO_JPA extends JpaRepository<Order, Object> {
     @Query("SELECT o FROM Order o WHERE o.member.id = :memberId AND o.orderType = :orderType AND CAST(o.orderDate AS DATE) BETWEEN :startDate AND :endDate order by o.Id desc ")
     List<Order> findByOrdersBetweenDatesAndOrderType(@Param("memberId") String memberId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("orderType") OrderType orderType);
 
-    Page<Order> findBy
+
 }
