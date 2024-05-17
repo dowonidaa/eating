@@ -6,7 +6,11 @@ import com.project.eat.order.Order;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,18 +21,17 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter
 @Setter
 @Table(name = "member")
-public class MemberVO_JPA {
+@EntityListeners(AuditingEntityListener.class)
+public class MemberVO_JPA implements Persistable<String> {
 
      // pk설정
 //    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성 전략 설정
     @Column(name = "num") // 컬럼이름 설정
     private int num;
 
-    @Column(
-            columnDefinition = "DATETIME(0) default CURRENT_TIMESTAMP",
-            insertable = false
-    )
-    private Date created_at;
+    @Column(updatable = false)
+    @CreatedDate
+    private LocalDateTime createDate;
 
     @Id
     @Column(name = "member_id", nullable = false)
@@ -80,5 +83,10 @@ public class MemberVO_JPA {
     public void addCart(Cart cart) {
         this.setCart(cart);
         cart.setMember(this);
+    }
+
+    @Override
+    public boolean isNew() {
+        return createDate == null;
     }
 }
