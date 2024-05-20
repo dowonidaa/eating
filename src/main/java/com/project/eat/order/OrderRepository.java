@@ -1,17 +1,36 @@
 package com.project.eat.order;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import static com.project.eat.item.QItem.item;
+import static com.project.eat.member.QCoupon.coupon;
+import static com.project.eat.member.QMemberVO_JPA.memberVO_JPA;
+import static com.project.eat.order.QOrder.order;
+import static com.project.eat.order.orderItem.QOrderItem.orderItem;
+import static com.project.eat.review.QReviewVO.reviewVO;
+import static com.project.eat.shop.QShopVO.shopVO;
+@Slf4j
 @Repository
-@RequiredArgsConstructor
 public class OrderRepository {
 
     private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+
+    public OrderRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public void save(Order order) {
         em.persist(order);
@@ -24,6 +43,64 @@ public class OrderRepository {
 
     public void deleteOne(Order one) {
         em.remove(one);
+    }
+
+    public List<Order> search(String memberId, SearchForm form) {
+
+        return queryFactory
+                .selectFrom(order)
+                .join(order.member, memberVO_JPA).fetchJoin()
+                .join(order.shop, shopVO).fetchJoin()
+                .join(order.orderItems, orderItem).fetchJoin()
+                .join(orderItem.item, item).fetchJoin()
+                .leftJoin(order.review, reviewVO).fetchJoin()
+                .leftJoin(order.coupon, coupon).fetchJoin()
+                .where(
+                        memberIdEq(memberId),
+                        shopNameOrItemNameContains(form.getSearchText()),
+                        orderTypeEq(form.getSelectedType()),
+                        dateBetween(form))
+                .orderBy(order.orderDate.desc())
+                .offset(form.getOffset())
+                .limit(form.getPageBlock())
+                .fetch();
+    }
+
+
+
+
+
+
+    public List<Order> findAllPage(String memberId, int pageBlock) {
+        return em.createQuery("select o from Order o where o.member.id = :memberId order by o.orderDate desc", Order.class)
+                .setParameter("memberId", memberId)
+                .setMaxResults(pageBlock)
+                .getResultList();
+    }
+
+
+    public Long pageCount(String memberId) {
+        return em.createQuery("select count(o) from Order o where o.member.id = :memberId", Long.class).setParameter("memberId", memberId).getSingleResult();
+    }
+
+    public Long searchTotalCount(String memberId, SearchForm form) {
+        return queryFactory
+                .select(order.countDistinct())
+                .from(order)
+                .join(order.member, memberVO_JPA)
+                .join(order.shop, shopVO)
+                .join(order.orderItems, orderItem)
+                .join(orderItem.item, item)
+                .leftJoin(order.review, reviewVO)
+                .leftJoin(order.coupon, coupon)
+                .where(
+                        memberIdEq(memberId),
+                        shopNameOrItemNameContains(form.getSearchText()),
+                        orderTypeEq(form.getSelectedType()),
+                        dateBetween(form))
+                .orderBy(order.orderDate.desc())
+                .fetchOne();
+
     }
 
     public List<Order> searchListBetweenDates(String memberId, SearchForm form) {
@@ -40,8 +117,8 @@ public class OrderRepository {
         jpql += " order by o.orderDate desc";
 
         TypedQuery<Order> query = em.createQuery(jpql, Order.class)
-                            .setParameter("memberId", memberId)
-                            .setParameter("searchText", "%"+form.getSearchText()+"%");
+                .setParameter("memberId", memberId)
+                .setParameter("searchText", "%"+form.getSearchText()+"%");
 
         if (!form.getSelectedType().equals("all")) {
             query.setParameter("orderType", OrderType.valueOf(form.getSelectedType().toUpperCase()));
@@ -54,19 +131,6 @@ public class OrderRepository {
         query.setFirstResult(form.getOffset());
         query.setMaxResults(form.getPageBlock());
         return query.getResultList();
-    }
-
-
-    public List<Order> findAllPage(String memberId, int pageBlock) {
-        return em.createQuery("select o from Order o where o.member.id = :memberId order by o.orderDate desc", Order.class)
-                .setParameter("memberId", memberId)
-                .setMaxResults(pageBlock)
-                .getResultList();
-    }
-
-
-    public Long pageCount(String memberId) {
-        return em.createQuery("select count(o) from Order o where o.member.id = :memberId", Long.class).setParameter("memberId", memberId).getSingleResult();
     }
 
     public Long searchPageCount(String memberId, SearchForm form) {
@@ -100,5 +164,35 @@ public class OrderRepository {
 
         return query.getSingleResult();
 
+    }
+
+    private BooleanExpression dateBetween(SearchForm form) {
+        if (form.getSearchOption().equals("dateRange")) {
+            return Expressions.dateTemplate(LocalDate.class, "cast({0} as date)", order.orderDate).between(form.getStartDate(), form.getEndDate());
+        }
+        return null;
+    }
+
+    private BooleanExpression orderTypeEq(String orderType) {
+        if (orderType.equals("all")){
+            return null;
+        }
+        OrderType enumOrderType= OrderType.valueOf(orderType.toUpperCase());
+        return order.orderType.eq(enumOrderType);
+    }
+
+    private BooleanExpression shopNameOrItemNameContains(String searchText) {
+        if(StringUtils.hasText(searchText)) {
+            return shopVO.shopName.lower().contains(searchText.toLowerCase()).or(item.itemName.lower().contains(searchText.toLowerCase()));
+        }
+        return null;
+    }
+
+    private BooleanExpression memberIdEq(String memberId) {
+        if(StringUtils.hasText(memberId)) {
+            log.info("memberid = {}", memberId);
+            return memberVO_JPA.id.eq(memberId);
+        }
+        return null;
     }
 }

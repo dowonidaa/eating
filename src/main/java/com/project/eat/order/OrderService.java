@@ -104,7 +104,7 @@ public class OrderService {
     @Transactional
     public List<OrderDTO> findSearchForm(String memberId, SearchForm form) {
 
-        List<Order> findOrders = orderRepository.searchListBetweenDates(memberId, form);
+        List<Order> findOrders = orderRepository.search(memberId, form);
         log.info("findOrders.size()= {}", findOrders.size());
         List<OrderDTO> orders = new ArrayList<>();
         for (Order order : findOrders) {
@@ -125,7 +125,8 @@ public class OrderService {
     }
 
     public Long searchPageCount(String memberId, SearchForm form) {
-        Long searchCount = orderRepository.searchPageCount(memberId, form);
+        Long searchCount = orderRepository.searchTotalCount(memberId, form);
+        log.info("totalCount = {}", searchCount);
         return (searchCount - 1) / form.getPageBlock() +1 ;
     }
 
@@ -149,10 +150,18 @@ public class OrderService {
         List<OrderDTO> orders = new ArrayList<>();
         for (Order order : findOrder) {
             boolean reviewExists = order.getReview() != null;
-            log.info("reviewExists ={}", reviewExists);
             List<OrderItem> orderItems = order.getOrderItems();
             String itemName = orderItems.get(0).getItem().getItemName() + (orderItems.size() - 1 != 0 ? " 외 " + (orderItems.size() - 1) + "개" : "");
-            OrderDTO orderDTO = new OrderDTO(order.getId(), (order.getTotalPrice() + order.getOrderPrice() - order.getDiscount()), order.getOrderType(), order.getOrderStatus(), order.getPaymentMethod(), order.getShop().getShopId(), order.getShop().getShopThum(), order.getOrderDate(), order.getShop().getShopName(), itemName, reviewExists );
+            OrderDTO orderDTO = new OrderDTO(order.getId(),
+                    (order.getTotalPrice() + order.getOrderPrice() - order.getDiscount()),
+                    order.getOrderType(),
+                    order.getOrderStatus(),
+                    order.getPaymentMethod(),
+                    order.getShop().getShopId(),
+                    order.getShop().getShopThum(),
+                    order.getOrderDate(),
+                    order.getShop().getShopName(),
+                    itemName, reviewExists );
             orders.add(orderDTO);
         }
 
