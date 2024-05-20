@@ -72,15 +72,25 @@ public class OrderRepository {
 
 
     public List<Order> findAllPage(String memberId, int pageBlock) {
-        return em.createQuery("select o from Order o where o.member.id = :memberId order by o.orderDate desc", Order.class)
-                .setParameter("memberId", memberId)
-                .setMaxResults(pageBlock)
-                .getResultList();
+        return queryFactory
+                .selectFrom(order)
+                .join(order.member, memberVO_JPA).fetchJoin()
+                .join(order.shop, shopVO).fetchJoin()
+                .join(order.orderItems, orderItem).fetchJoin()
+                .join(orderItem.item, item).fetchJoin()
+                .leftJoin(order.review, reviewVO).fetchJoin()
+                .leftJoin(order.coupon, coupon).fetchJoin()
+                .where(memberIdEq(memberId))
+                .orderBy(order.orderDate.desc())
+                .limit(pageBlock)
+                .fetch();
     }
 
 
     public Long pageCount(String memberId) {
-        return em.createQuery("select count(o) from Order o where o.member.id = :memberId", Long.class).setParameter("memberId", memberId).getSingleResult();
+        return
+//                em.createQuery("select count(o) from Order o where o.member.id = :memberId", Long.class).setParameter("memberId", memberId).getSingleResult();
+        queryFactory.select(order.count()).from(order).where(order.member.id.eq(memberId)).fetchOne();
     }
 
     public Long searchTotalCount(String memberId, SearchForm form) {
@@ -191,7 +201,7 @@ public class OrderRepository {
     private BooleanExpression memberIdEq(String memberId) {
         if(StringUtils.hasText(memberId)) {
             log.info("memberid = {}", memberId);
-            return memberVO_JPA.id.eq(memberId);
+            return order.member.id.eq(memberId);
         }
         return null;
     }
