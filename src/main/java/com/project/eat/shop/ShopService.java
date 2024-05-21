@@ -1,6 +1,7 @@
 package com.project.eat.shop;
 
 import com.project.eat.admin.AdminVO_JPA;
+import com.project.eat.item.ItemDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,6 +158,33 @@ public class ShopService {
 
     public ShopVO findShop(Long shopId) {
         return shopRepositoryEM.findShop(shopId);
+    }
+
+    public ShopDto findShopFetchJoinItem(Long shopId) {
+        ShopVO findShop = shopRepositoryEM.findShopFetchJoinItem(shopId);
+        return new ShopDto(findShop.getShopId(),
+                findShop.getShopName(),
+                findShop.getStarAvg(),
+                findShop.getMinPrice(),
+                findShop.getRunTime(),
+                findShop.getShopAddr(),
+                findShop.getDeliveryTime(),
+                findShop.getShopTel(),
+                findShop.getReviewCount(),
+                findShop.getItems().stream().map(
+                        i -> new ItemDto(i.getId(),
+                                i.getItemName(),
+                                i.getShop().getShopId(),
+                                i.getItemUrl(),
+                                i.getItemDescription(),
+                                i.getItemPrice(),
+                                i.getShop().getMinPrice(),
+                                i.getItemOptions()))
+                        .toList(),
+                findShop.getDeliveryPrice(),
+                findShop.getMinPriceInt()
+//                null
+        );
     }
 
     public List<ShopVO> findAll() {

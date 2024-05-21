@@ -1,9 +1,12 @@
 package com.project.eat.shop;
 
 
+import com.project.eat.cart.CartDto;
 import com.project.eat.cart.CartService;
 import com.project.eat.cart.cartItem.CartItem;
+import com.project.eat.cart.cartItem.CartItemDto;
 import com.project.eat.item.Item;
+import com.project.eat.item.ItemDto;
 import com.project.eat.item.itemOption.ItemOption;
 import com.project.eat.member.MemberService;
 import com.project.eat.member.MemberVO_JPA;
@@ -552,36 +555,33 @@ public class ShopController {
 
     @GetMapping("/shopDetail")
     public String shop(@RequestParam("num") Long shopId, Model model, HttpSession session) {
-        ShopVO findShop = shopService.findShop(shopId);
+        ShopDto findShop = shopService.findShopFetchJoinItem(shopId);
         if(findShop.getItems().isEmpty()){
             return "redirect:/";
         }
-        List<Item> items = findShop.getItems();
-        List<ItemOption> itemOptions = items.get(0).getItemOptions();
-
+        List<ItemDto> items = findShop.getItems();
 
         model.addAttribute("shop", findShop);
         model.addAttribute("items", items);
-        model.addAttribute("itemOptions", itemOptions);
 
-        Object memberId = session.getAttribute("member_id");
+        String memberId = (String)session.getAttribute("member_id");
         if(memberId != null) {
-            MemberVO_JPA findMember = memberService.findOne(memberId.toString());
-            if (findMember.getCart() == null) {
-                cartService.createCart(memberId.toString());
+            CartDto myCart = cartService.findCartByMemberId(memberId);
+            if (myCart == null) {
+                cartService.createCart(memberId);
+                myCart = cartService.findCartByMemberId(memberId);
             }
-            if (findMember.getCart().getShop() == null) {
-                ShopVO shop = shopService.findShop(shopId);
-                model.addAttribute("cartShop", shop);
+                log.info("myCart = {}", myCart);
+            if (myCart.getShopId() == null) {
+                model.addAttribute("cartShop", findShop);
             }else {
-                model.addAttribute("cartShop", findMember.getCart().getShop());
-
+                model.addAttribute("cartShop", myCart);
             }
 
 
-            List<CartItem> cartItems = findMember.getCart().getCartItems();
+            List<CartItemDto> cartItems = myCart.getCartItems();
             model.addAttribute("cartItems", cartItems);
-            int totalPrice = findMember.getCart().getTotalPrice();
+            int totalPrice = myCart.getTotalPrice();
             model.addAttribute("totalPrice", totalPrice);
 
 
