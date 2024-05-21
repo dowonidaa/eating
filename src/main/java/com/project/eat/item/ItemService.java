@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -18,6 +19,18 @@ public class ItemService {
 
     public Item findOne(Long itemId) {
         return itemRepository.findOne(itemId);
+    }
+    public ItemDto findByItemFetchJoin(Long itemId) {
+        Item findItem = itemRepository.findByItemFetchJoin(itemId);
+        return new ItemDto(
+                findItem.getId(),
+                findItem.getItemName(),
+                findItem.getShop().getShopId(),
+                findItem.getItemUrl(),
+                findItem.getItemDescription(),
+                findItem.getItemPrice(),
+                findItem.getShop().getMinPrice(),
+                findItem.getItemOptions());
     }
 
     @Transactional
@@ -61,4 +74,7 @@ public class ItemService {
     }
 
 
+    public List<Item> findByShopId(Long shopId) {
+        return itemRepository.findByShopId(shopId);
+    }
 }

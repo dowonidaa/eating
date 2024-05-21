@@ -1,16 +1,25 @@
 package com.project.eat.item;
 
+import com.project.eat.item.itemOption.QItemOption;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.project.eat.item.QItem.item;
+import static com.project.eat.shop.QShopVO.shopVO;
+
 @Repository
-@RequiredArgsConstructor
 public class ItemRepository {
 
     private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+    public ItemRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public Item findOne(Long itemId) {
         return em.find(Item.class, itemId);
@@ -29,6 +38,16 @@ public class ItemRepository {
       return em.createQuery("select i from Item i where i.shop.id = :shopId", Item.class)
                 .setParameter("shopId", shopId)
                 .getResultList();
+    }
+
+    public Item findByItemFetchJoin(Long itemId) {
+        return queryFactory
+                .select(item)
+                .from(item)
+                .join(item.shop, shopVO).fetchJoin()
+                .join(item.itemOptions, QItemOption.itemOption).fetchJoin()
+                .where(item.id.eq(itemId))
+                .fetchOne();
     }
 
 
