@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<form id="addItemForm" class="modal" th:action="@{/cart/{shopId}/add (shopId=${shop.shopId})}"
+<form id="addItemForm" class="modal" th:action="@{/cart/{shopId}/add (shopId=${item.shopId})}"
       th:object="${shop}" th:method="post">
-    <input th:type="hidden" name="itemId" th:value="${item.id}"/>
-    <input th:type="hidden" th:id="shopId" name="shopId" th:value="${shop.shopId}">
+    <input th:type="hidden" name="itemId" th:value="${item.itemId}"/>
+    <input th:type="hidden" th:id="shopId" name="shopId" th:value="${item.shopId}">
     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">메뉴상세
@@ -58,9 +58,9 @@
                                     <div class="row align-items-center">
                                         <div class="col text-start">
                                 <input class="form-check-input" type="checkbox" name="extraItemId"
-                                       th:id="${it.id}" th:value="${it.id}"
+                                       th:id="${it.itemId}" th:value="${it.itemId}"
                                        >
-                                <label class="form-check-label" th:for="${it.id}"
+                                <label class="form-check-label" th:for="${it.itemId}"
                                        th:text="${it.itemName}">
                                     추가 아이템
                                 </label>
@@ -92,7 +92,7 @@
                         <h4 class="col text-end" id="total-price-modal" th:text="|${#numbers.formatDecimal(item.itemPrice, 0, 'COMMA', 0, 'POINT')}원|">35,000원</h4>
                     </div>
                     <div class="row">
-                        <h6 class="col text-end align-items-end" th:text="|(최소주문금액 ${shop.minPrice})|">(최소주문음액 16,000원)</h6>
+                        <h6 class="col text-end align-items-end" th:text="|(최소주문금액 ${item.minPrice})|">(최소주문음액 16,000원)</h6>
                     </div>
                 </div>
                 <div class="modal-footer">

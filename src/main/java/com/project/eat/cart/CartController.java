@@ -3,8 +3,11 @@ package com.project.eat.cart;
 import com.project.eat.cart.cartItem.CartItem;
 import com.project.eat.cart.cartItem.CartItemService;
 import com.project.eat.item.Item;
+import com.project.eat.item.ItemDto;
 import com.project.eat.item.ItemService;
+import com.project.eat.item.ItemsDto;
 import com.project.eat.item.itemOption.ItemOption;
+import com.project.eat.item.itemOption.ItemOptionDto;
 import com.project.eat.item.itemOption.ItemOptionService;
 import com.project.eat.member.MemberService;
 import com.project.eat.member.MemberVO_JPA;
@@ -159,14 +162,15 @@ public class CartController {
 
     @PostMapping("/{itemId}")
     public String getItemDetails(@PathVariable("itemId") Long itemId, Model model) {
-        Item findItem = itemService.findOne(itemId);
-        ShopVO itemShop = findItem.getShop();
-        List<Item> items = itemShop.getItems().stream().filter(item -> !item.getId().equals(itemId)).toList();
-        List<ItemOption> itemOptions = findItem.getItemOptions().stream().sorted(Comparator.comparing(ItemOption::getPrice)).toList();
+        ItemDto findItem = itemService.findByItemFetchJoin(itemId);
+        List<ItemsDto> items = itemService.itemList(findItem.getShopId()).stream().filter(item -> !item.getItemId().equals(itemId)).toList();
+        List<ItemOptionDto> itemOptions = findItem.getItemOptions()
+                .stream().sorted(Comparator.comparing(ItemOption::getPrice))
+                .map(ito -> new ItemOptionDto(ito.getId(), ito.getContent(), ito.getPrice()))
+                .toList();
         model.addAttribute("item", findItem);
         model.addAttribute("items", items);
         model.addAttribute("itemOptions", itemOptions);
-        model.addAttribute("shop", itemShop);
         return "shop/itemAddForm";
     }
 

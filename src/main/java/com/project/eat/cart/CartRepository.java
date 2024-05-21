@@ -1,14 +1,26 @@
 package com.project.eat.cart;
 
+import com.project.eat.cart.cartItem.QCartItem;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+import static com.project.eat.cart.QCart.*;
+import static com.project.eat.cart.cartItem.QCartItem.*;
+
 @Repository
-@RequiredArgsConstructor
 public class CartRepository {
 
     private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
+
+    public CartRepository(EntityManager em) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+    }
 
     public Cart findCart(Long id) {
        return em.find(Cart.class, id);
@@ -25,4 +37,15 @@ public class CartRepository {
     public void flush() {
         em.flush();
     }
+
+    public Cart findByMemberId(String memberId) {
+        return queryFactory
+                .select(cart)
+                .from(cart)
+                .join(cart.cartItems, cartItem).fetchJoin()
+                .where(cart.member.id.eq(memberId))
+                .fetchOne();
+    }
+
+
 }

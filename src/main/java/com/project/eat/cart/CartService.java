@@ -79,15 +79,24 @@ public class CartService {
 
     }
 
-    public int countCartItems(String memberId) {
-        MemberVO_JPA findMember = memberRepository.findOne(memberId);
-        return findMember.getCart().getCartItems().size();
+    public CartInfo cartInfo(String memberId) {
+        int cartCount = 0;
+        Long shopId = null;
+        if (memberId != null) {
+            Cart findCart = cartRepository.findByMemberId(memberId);
+            if (findCart != null) {
+                cartCount = findCart.getCartItems().size();
+                shopId = findCart.getShop().getShopId();
+            }
+        }
+        return new CartInfo(cartCount, shopId);
+
     }
 
     public Long findShopId(String memberId) {
-        MemberVO_JPA findMember = memberRepository.findOne(memberId);
-        if(findMember.getCart().getShop() !=null){
-            return (long) findMember.getCart().getShop().getShopId();
+        Cart findCart = cartRepository.findByMemberId(memberId);
+        if(findCart.getShop() !=null){
+            return findCart.getShop().getShopId();
         }
         return  null;
     }
@@ -107,6 +116,8 @@ public class CartService {
     public void delete(Cart cart) {
         cartRepository.delete(cart);
     }
+
+
 
 
 }

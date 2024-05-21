@@ -11,29 +11,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class GlobalControllerAdvice {
 
     private final CartService cartService;
-    private final MemberService memberService;
 
-    @ModelAttribute("cartCount")
-    public int cartCount(HttpSession session) {
-        Object memberId = session.getAttribute("member_id");
-        if (memberId != null) {
-            if(memberService.findOne(memberId.toString()).getCart()!=null) {
-            return cartService.countCartItems(memberId.toString());
-            }
-        }
-        return 0;
-
-    }
-
-    @ModelAttribute("shopId")
-    public Long shopId(HttpSession session) {
+    @ModelAttribute("cartInfo")
+    public CartInfo cartInfo(HttpSession session) {
         String memberId =(String) session.getAttribute("member_id");
-        if (memberId != null) {
-            if(memberService.findOne(memberId).getCart()!=null) {
-                return cartService.findShopId(memberId);
-            }
-        }
-        return null;
+        return cartService.cartInfo(memberId);
     }
+
+
 
 }
