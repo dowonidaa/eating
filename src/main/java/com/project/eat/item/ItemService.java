@@ -69,8 +69,9 @@ public class ItemService {
         }
     }
 
-    public List<Item> itemList(Long shopId) {
-        return itemRepository.findByShopId(shopId);
+    public List<ItemsDto> itemList(Long shopId) {
+        List<Item> items = itemRepository.findByShopId(shopId);
+        return items.stream().map(item -> new ItemsDto(item.getId(), item.getItemName(), item.getItemPrice())).toList();
     }
 
 

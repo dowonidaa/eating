@@ -1,6 +1,7 @@
 package com.project.eat.item;
 
 import com.project.eat.item.itemOption.QItemOption;
+import com.project.eat.shop.QShopVO;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
@@ -35,9 +36,11 @@ public class ItemRepository {
     }
 
     public List<Item> findByShopId(Long shopId) {
-      return em.createQuery("select i from Item i where i.shop.id = :shopId", Item.class)
-                .setParameter("shopId", shopId)
-                .getResultList();
+       return queryFactory
+               .selectFrom(item)
+               .join(item.shop, shopVO).fetchJoin()
+               .where(item.shop.shopId.eq(shopId))
+               .fetch();
     }
 
     public Item findByItemFetchJoin(Long itemId) {
