@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.project.eat.cart.QCart.cart;
 import static com.project.eat.item.QItem.item;
 import static com.project.eat.member.QCoupon.coupon;
 import static com.project.eat.member.QMemberVO_JPA.memberVO_JPA;
@@ -55,6 +56,7 @@ public class OrderRepository {
                 .join(orderItem.item, item).fetchJoin()
                 .leftJoin(order.review, reviewVO).fetchJoin()
                 .leftJoin(order.coupon, coupon).fetchJoin()
+                .leftJoin(order.member.cart, cart).fetchJoin()
                 .where(
                         memberIdEq(memberId),
                         shopNameOrItemNameContains(form.getSearchText()),
