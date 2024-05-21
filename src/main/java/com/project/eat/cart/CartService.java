@@ -1,6 +1,7 @@
 package com.project.eat.cart;
 
-import com.project.eat.cart.cartItem.CartItem;
+import com.project.eat.cart.cartItem.CartItemDto;
+import com.project.eat.cart.cartOption.CartItemOption;
 import com.project.eat.member.MemberRepositoryEM;
 import com.project.eat.member.MemberVO_JPA;
 import com.project.eat.shop.ShopRepositoryEM;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,17 +31,11 @@ public class CartService {
 
     @Transactional
     public void createCart(String memberId) {
-
         Cart cart = new Cart();
         MemberVO_JPA member = memberRepository.findOne(memberId);
-
-
         cart.setMember(member);
-
-
         cartRepository.save(cart);
         member.addCart(cart);
-
     }
 
     @Transactional
@@ -84,7 +80,7 @@ public class CartService {
         Long shopId = null;
         if (memberId != null) {
             Cart findCart = cartRepository.findByMemberId(memberId);
-            if (findCart != null) {
+            if (findCart != null && findCart.getShop() != null) {
                 cartCount = findCart.getCartItems().size();
                 shopId = findCart.getShop().getShopId();
             }
@@ -95,10 +91,10 @@ public class CartService {
 
     public Long findShopId(String memberId) {
         Cart findCart = cartRepository.findByMemberId(memberId);
-        if(findCart.getShop() !=null){
+        if (findCart.getShop() != null) {
             return findCart.getShop().getShopId();
         }
-        return  null;
+        return null;
     }
 
 
@@ -118,6 +114,30 @@ public class CartService {
     }
 
 
+    public CartDto findCartByMemberId(String memberId) {
+        Cart findCart = cartRepository.findByMemberId(memberId);
+        if (findCart != null) {
+            if (findCart.getShop() != null) {
+                return new CartDto(findCart.getId(),
+                        findCart.getShop().getShopId(),
+                        findCart.getShop().getMinPriceInt(),
+                        findCart.getShop().getDeliveryPrice(),
+                        findCart.getCartItems().stream()
+                                .map(ci -> new CartItemDto(ci.getId(),
+                                        ci.getItem().getItemName(),
+                                        getCartItemOptionsName(ci.getCartItemOptions()),
+                                        ci.getItem().getItemUrl(),
+                                        ci.getQuantity(),
+                                        ci.getPrice())).toList(),
+                        findCart.getTotalPrice());
+            }
+            return new CartDto(findCart.getId());
+        }
+        return null;
+    }
 
-
+    private String getCartItemOptionsName(List<CartItemOption> ci) {
+        List<String> list = ci.stream().map(i -> i.getItemOption().getContent()).toList();
+        return list.stream().map(String::valueOf).collect(Collectors.joining(", "));
+    }
 }

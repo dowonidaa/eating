@@ -1,6 +1,7 @@
 package com.project.eat.cart;
 
 import com.project.eat.cart.cartItem.QCartItem;
+import com.project.eat.shop.QShopVO;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import static com.project.eat.cart.QCart.*;
 import static com.project.eat.cart.cartItem.QCartItem.*;
+import static com.project.eat.shop.QShopVO.*;
 
 @Repository
 public class CartRepository {
@@ -42,7 +44,8 @@ public class CartRepository {
         return queryFactory
                 .select(cart)
                 .from(cart)
-                .join(cart.cartItems, cartItem).fetchJoin()
+                .leftJoin(cart.shop, shopVO).fetchJoin()
+                .leftJoin(cart.cartItems, cartItem).fetchJoin()
                 .where(cart.member.id.eq(memberId))
                 .fetchOne();
     }

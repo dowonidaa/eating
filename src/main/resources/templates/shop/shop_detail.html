@@ -337,7 +337,7 @@
                                     <div class="card" data-bs-target="#addItemForm" data-bs-toggle="modal"
                                          th:data-item-name="${item.itemName}" th:data-item-description="${item.itemDescription}"
                                          th:data-item-price="${#numbers.formatDecimal(item.itemPrice, 0, 'COMMA', 0, 'POINT')}"
-                                         th:data-item-url="${item.itemUrl}" th:data-item-id="${item.id}">
+                                         th:data-item-url="${item.itemUrl}" th:data-item-id="${item.itemId}">
                                         <div class="detail-card-img-container">
                                             <img th:src="${item.itemUrl}" class="card-menu-img-top" alt="...">
                                         </div>
@@ -358,7 +358,7 @@
                                     <div class="card" data-bs-target="#addItemForm" data-bs-toggle="modal"
                                          th:data-item-name="${item.itemName}" th:data-item-description="${item.itemDescription}"
                                          th:data-item-price="${#numbers.formatDecimal(item.itemPrice, 0, 'COMMA', 0, 'POINT')}"
-                                         th:data-item-url="${item.itemUrl}" th:data-item-id="${item.id}">
+                                         th:data-item-url="${item.itemUrl}" th:data-item-id="${item.itemId}">
                                         <div class="detail-card-img-container">
                                             <img th:src="${item.itemUrl}" class="card-menu-img-top" alt="...">
                                         </div>
@@ -379,7 +379,7 @@
                                     <div class="card" data-bs-target="#addItemForm" data-bs-toggle="modal"
                                          th:data-item-name="${item.itemName}" th:data-item-description="${item.itemDescription}"
                                          th:data-item-price="${#numbers.formatDecimal(item.itemPrice, 0, 'COMMA', 0, 'POINT')}"
-                                         th:data-item-url="${item.itemUrl}" th:data-item-id="${item.id}">
+                                         th:data-item-url="${item.itemUrl}" th:data-item-id="${item.itemId}">
                                         <div class="detail-card-img-container">
                                             <img th:src="${item.itemUrl}" class="card-menu-img-top" alt="...">
                                         </div>
@@ -419,22 +419,22 @@
                             </div>
                             <input th:type="hidden" th:id="cartShopId" th:value="${cartShop.shopId}">
                             <div class="cart-card" th:each="cartItem : ${cartItems}">
-                                <img th:src="${cartItem.item.itemUrl}" alt="세트A" class="shop">
+                                <img th:src="${cartItem.cartItemUrl}" alt="세트A" class="shop">
                                 <div class="card-body">
-                                    <h5 class="menu-title" th:text="${cartItem.item.itemName}">세트 A</h5>
-                                    <div th:each="cartItemOption : ${cartItem.cartItemOptions}">
-                                        <span style="font-size: 0.75rem;" th:text="|-${cartItemOption.itemOption.content}|"></span>
+                                    <h5 class="menu-title" th:text="${cartItem.cartItemName}">세트 A</h5>
+                                    <div >
+                                        <span style="font-size: 0.75rem;" th:text="|-${cartItem.cartItemOptionContent}|"></span>
                                     </div>
-                                    <h5 class="cart-price" th:id="'price-' + ${cartItem.id}" th:text="|${#numbers.formatDecimal(cartItem.price, 0, 'COMMA', 0, 'POINT')}원|">15,000원</h5>
+                                    <h5 class="cart-price" th:id="'price-' + ${cartItem.cartItemId}" th:text="|${#numbers.formatDecimal(cartItem.price, 0, 'COMMA', 0, 'POINT')}원|">15,000원</h5>
                                 </div>
                                 <div class="quantity">
-                                    <button class="quantity-button btn-outline-secondary decrement-quantity" th:data-cartitemid="${cartItem.id}">-</button>
-                                    <span class="quantity-number" th:id="|quantity-${cartItem.id}|" th:text="${cartItem.quantity}">1</span>
-                                    <button class="quantity-button btn-outline-secondary increment-quantity" th:data-cartitemid="${cartItem.id}">+</button>
+                                    <button class="quantity-button btn-outline-secondary decrement-quantity" th:data-cartitemid="${cartItem.cartItemId}">-</button>
+                                    <span class="quantity-number" th:id="|quantity-${cartItem.cartItemId}|" th:text="${cartItem.quantity}">1</span>
+                                    <button class="quantity-button btn-outline-secondary increment-quantity" th:data-cartitemid="${cartItem.cartItemId}">+</button>
                                 </div>
                                 <form th:action="@{/cart/delete}" th:method="POST">
                                 <button class="remove-button delete-cart-item" type="submit" >삭제</button>
-                                <input class="remove-button delete-cart-item" type="hidden" th:value="${cartItem.id}" th:name="cartItemId"  >
+                                <input class="remove-button delete-cart-item" type="hidden" th:value="${cartItem.cartItemId}" th:name="cartItemId"  >
                                 </form>
                             </div>
                         </div>
@@ -471,38 +471,38 @@
 
                 <form id="addItemForm" class="modal" th:action="@{/cart/{shopId}/add (shopId=${shop.shopId})}"
                       th:object="${shop}" th:method="post">
-                    <input th:type="hidden" name="itemId" th:value="${items.get(0).id}"/>
+                    <input th:type="hidden" name="itemId" th:value="${items.get(0).itemId}"/>
                     <input th:type="hidden" th:id="shopId" th:value="${shop.shopId}">
                     <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">메뉴상세
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-                            <div class="modal-body">
-                                <img th:src="${items.get(0).itemUrl}"></img>
-                                <div th:text="${items.get(0).itemName}">메뉴이름</div>
-                                <div th:text="${items.get(0).itemDescription}">메뉴설명</div>
-                                <div th:text="|${items.get(0).itemPrice}원|">가격</div>
+<!--                            <div class="modal-body">-->
+<!--                                <img th:src="${items.get(0).itemUrl}"></img>-->
+<!--                                <div th:text="${items.get(0).itemName}">메뉴이름</div>-->
+<!--                                <div th:text="${items.get(0).itemDescription}">메뉴설명</div>-->
+<!--                                <div th:text="|${items.get(0).itemPrice}원|">가격</div>-->
 
-                                <div>필수 옵션</div>
-                                <div class="form-check" th:each="itemOption, iterStat : ${itemOptions}">
-                                    <input class="form-check-input" type="radio" name="itemOptionId"
-                                           id="flexRadioDefault1" th:value="${itemOption.id}"
-                                           th:attr="checked=${iterStat.index == 0 ? 'checked' : null}">
-                                    <label class="form-check-label" for="flexRadioDefault1"
-                                           th:text="${itemOption.content}">
-                                        Default radio
-                                    </label>
-                                </div>
-                                <div>
-                                    <label for="quantity">Quantity:</label>
-                                    <input type="number" value="1" id="quantity" name="quantity" min="1"/>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">장바구니추가</button>
-                                <button type="button" class="btn btn-secondary" id="orderDirect">주문하기</button>
-                            </div>
+<!--                                <div>필수 옵션</div>-->
+<!--                                <div class="form-check" th:each="itemOption, iterStat : ${itemOptions}">-->
+<!--                                    <input class="form-check-input" type="radio" name="itemOptionId"-->
+<!--                                           id="flexRadioDefault1" th:value="${itemOption.id}"-->
+<!--                                           th:attr="checked=${iterStat.index == 0 ? 'checked' : null}">-->
+<!--                                    <label class="form-check-label" for="flexRadioDefault1"-->
+<!--                                           th:text="${itemOption.content}">-->
+<!--                                        Default radio-->
+<!--                                    </label>-->
+<!--                                </div>-->
+<!--                                <div>-->
+<!--                                    <label for="quantity">Quantity:</label>-->
+<!--                                    <input type="number" value="1" id="quantity" name="quantity" min="1"/>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="modal-footer">-->
+<!--                                <button type="submit" class="btn btn-primary">장바구니추가</button>-->
+<!--                                <button type="button" class="btn btn-secondary" id="orderDirect">주문하기</button>-->
+<!--                            </div>-->
                         </div>
                     </div>
                 </form>
