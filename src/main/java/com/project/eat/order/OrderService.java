@@ -7,7 +7,9 @@ import com.project.eat.item.Item;
 import com.project.eat.member.MemberRepositoryEM;
 import com.project.eat.member.MemberVO_JPA;
 import com.project.eat.order.orderItem.OrderItem;
+import com.project.eat.order.orderItem.OrderItemDto;
 import com.project.eat.order.orderItemOption.OrderItemOption;
+import com.project.eat.order.orderItemOption.OrderItemOptionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -73,6 +75,36 @@ public class OrderService {
         return orderRepository.findOne(orderId);
     }
 
+    public OrderDto findOrderByIdFetchJoin(Long orderId) {
+        Order findOrder = orderRepository.findOrderByIdFetchJoin(orderId);
+        List<OrderItemDto> orderItemDtos = findOrder.getOrderItems().stream().map(oi -> new OrderItemDto(oi.getPrice(),
+                oi.getItem().getItemName(),
+                oi.getOrderItemOptions().stream().map(oio->new OrderItemOptionDto(oio.getItemOption().getContent(), oio.getItemOption().getPrice())).toList(),
+                oi.getPrice(),
+                oi.getQuantity()
+        )).toList();
+        return new OrderDto(findOrder.getId(),
+                findOrder.price(),
+                findOrder.getOrderType(),
+                findOrder.getOrderStatus(),
+                findOrder.getPaymentMethod(),
+                findOrder.getShop().getShopId(),
+                findOrder.getShop().getShopThum(),
+                findOrder.getOrderDate(),
+                findOrder.getShop().getShopName(),
+                findOrder.getOrderItems().get(0).getItem().getItemName() + (findOrder.getOrderItems().size() - 1 != 0 ? " 외 " + (findOrder.getOrderItems().size() - 1) + "개" : ""),
+                false,
+                orderItemDtos,
+                findOrder.getOrderTel(),
+                findOrder.getMemberNotes(),
+                findOrder.getShop().getShopTel(),
+                findOrder.getOrderAddress(),
+                findOrder.getTotalPrice(),
+                findOrder.getOrderPrice(),
+                findOrder.getDiscount(),
+                findOrder.getMember().getId());
+    }
+
     @Transactional
     public void deleteOne(Long orderId) {
         Order one = orderRepository.findOne(orderId);
@@ -86,7 +118,7 @@ public class OrderService {
         findOrder.setOrderStatus(order.getOrderStatus());
     }
 
-    public List<OrderDTO> findByOrderType(String memberId, OrderType orderType) {
+    public List<OrderDto> findByOrderType(String memberId, OrderType orderType) {
 
         List<Order> findOrder = orderDAOJpa.findByMemberIdByOrderType(memberId, orderType);
         return getOrderDTOS(findOrder);
@@ -102,11 +134,11 @@ public class OrderService {
 
 
     @Transactional
-    public List<OrderDTO> findSearchForm(String memberId, SearchForm form) {
+    public List<OrderDto> findSearchForm(String memberId, SearchForm form) {
 
         List<Order> findOrders = orderRepository.search(memberId, form);
         log.info("findOrders.size()= {}", findOrders.size());
-        List<OrderDTO> orders = new ArrayList<>();
+        List<OrderDto> orders = new ArrayList<>();
         for (Order order : findOrders) {
             boolean reviewExists = order.getReview() != null;
             List<OrderItem> orderItems = order.getOrderItems();
@@ -118,7 +150,7 @@ public class OrderService {
                     .orElse(orderItems.isEmpty() ? "" : orderItems.get(0).getItem().getItemName());
             String itemName = matchedItemName + (orderItems.size() - 1 != 0 ? " 외 " + (orderItems.size() - 1) + "개" : "");
 
-            OrderDTO orderDTO = new OrderDTO(order.getId(), (order.getTotalPrice() + order.getOrderPrice() - order.getDiscount()), order.getOrderType(), order.getOrderStatus(), order.getPaymentMethod(), order.getShop().getShopId(), order.getShop().getShopThum(), order.getOrderDate(), order.getShop().getShopName(), itemName ,reviewExists);
+            OrderDto orderDTO = new OrderDto(order.getId(), (order.getTotalPrice() + order.getOrderPrice() - order.getDiscount()), order.getOrderType(), order.getOrderStatus(), order.getPaymentMethod(), order.getShop().getShopId(), order.getShop().getShopThum(), order.getOrderDate(), order.getShop().getShopName(), itemName ,reviewExists);
             orders.add(orderDTO);
         }
         return orders;
@@ -130,7 +162,7 @@ public class OrderService {
         return (searchCount - 1) / form.getPageBlock() +1 ;
     }
 
-    public List<OrderDTO> findAllPage(String memberId, SearchForm form) {
+    public List<OrderDto> findAllPage(String memberId, SearchForm form) {
 
         List<Order> findOrder = orderRepository.findAllPage(memberId,form.getPageBlock());
         return getOrderDTOS(findOrder);
@@ -146,13 +178,13 @@ public class OrderService {
 
 
 
-    private List<OrderDTO> getOrderDTOS(List<Order> findOrder) {
-        List<OrderDTO> orders = new ArrayList<>();
+    private List<OrderDto> getOrderDTOS(List<Order> findOrder) {
+        List<OrderDto> orders = new ArrayList<>();
         for (Order order : findOrder) {
             boolean reviewExists = order.getReview() != null;
             List<OrderItem> orderItems = order.getOrderItems();
             String itemName = orderItems.get(0).getItem().getItemName() + (orderItems.size() - 1 != 0 ? " 외 " + (orderItems.size() - 1) + "개" : "");
-            OrderDTO orderDTO = new OrderDTO(order.getId(),
+            OrderDto orderDTO = new OrderDto(order.getId(),
                     (order.getTotalPrice() + order.getOrderPrice() - order.getDiscount()),
                     order.getOrderType(),
                     order.getOrderStatus(),

@@ -1,5 +1,8 @@
 package com.project.eat.order;
 
+import com.project.eat.cart.QCart;
+import com.project.eat.item.itemOption.QItemOption;
+import com.project.eat.order.orderItemOption.QOrderItemOption;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,10 +17,12 @@ import java.util.List;
 
 import static com.project.eat.cart.QCart.cart;
 import static com.project.eat.item.QItem.item;
+import static com.project.eat.item.itemOption.QItemOption.*;
 import static com.project.eat.member.QCoupon.coupon;
 import static com.project.eat.member.QMemberVO_JPA.memberVO_JPA;
 import static com.project.eat.order.QOrder.order;
 import static com.project.eat.order.orderItem.QOrderItem.orderItem;
+import static com.project.eat.order.orderItemOption.QOrderItemOption.*;
 import static com.project.eat.review.QReviewVO.reviewVO;
 import static com.project.eat.shop.QShopVO.shopVO;
 @Slf4j
@@ -207,4 +212,22 @@ public class OrderRepository {
         }
         return null;
     }
+
+    public Order findOrderByIdFetchJoin(Long orderId) {
+        return queryFactory
+                .select(order)
+                .from(order)
+                .join(order.member, memberVO_JPA).fetchJoin()
+                .join(order.shop, shopVO).fetchJoin()
+                .join(order.orderItems, orderItem).fetchJoin()
+                .join(orderItem.item, item).fetchJoin()
+                .leftJoin(order.coupon, coupon).fetchJoin()
+                .leftJoin(order.review, reviewVO).fetchJoin()
+                .leftJoin(memberVO_JPA.cart, cart).fetchJoin()
+//                .join(orderItemOption.itemOption, itemOption).fetchJoin()
+//                .join(orderItem.orderItemOptions, orderItemOption).fetchJoin()
+                .where(order.id.eq(orderId))
+                .fetchOne();
+    }
+
 }

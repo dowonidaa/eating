@@ -1,6 +1,7 @@
 package com.project.eat.item;
 
 import com.project.eat.item.itemOption.ItemOption;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +45,16 @@ class ItemServiceTest {
          for (Item item : items) {
              System.out.println("item = " + item.getItemName());
          }
+     }
+
+     @Test
+    void 아이템아이디제외한아이템찾기() {
+
+         ItemDto findItemDto = itemService.findByItemFetchJoin(248L);
+
+         List<ItemsDto> itemsExcludingItemId = itemService.findItemsExcludingItemId(findItemDto.getShopId(), findItemDto.getItemId());
+
+         Assertions.assertThat(itemsExcludingItemId).extracting("itemId").containsExactly(249L, 250L, 251L, 252L);
      }
 
 

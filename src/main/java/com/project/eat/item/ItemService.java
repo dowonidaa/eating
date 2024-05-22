@@ -78,4 +78,10 @@ public class ItemService {
     public List<Item> findByShopId(Long shopId) {
         return itemRepository.findByShopId(shopId);
     }
+
+    public List<ItemsDto> findItemsExcludingItemId(Long shopId, Long itemId) {
+        List<Item> findItems = itemRepository.findItemsExcludingItemId(shopId, itemId);
+        return findItems.stream().map(i -> new ItemsDto(i.getId(), i.getItemName(), i.getItemPrice())).toList();
+
+    }
 }

@@ -26,7 +26,7 @@ class OrderServiceTest {
 
     @Test
     void findByOrderType() {
-        List<OrderDTO> findOrders = orderService.findByOrderType("dowon456",OrderType.TAKEOUT);
+        List<OrderDto> findOrders = orderService.findByOrderType("dowon456",OrderType.TAKEOUT);
         MemberVO_JPA findMember = memberService.findOne("dowon456");
         List<Order> memberOrders = findMember.getOrders();
 
@@ -77,12 +77,12 @@ class OrderServiceTest {
 //        form.setStartDate(LocalDate.parse("2024-04-19"));
 //        form.setEndDate(LocalDate.parse("2024-04-19"));
 
-        List<OrderDTO> searchForm = orderService.findSearchForm(memberId, form);
+        List<OrderDto> searchForm = orderService.findSearchForm(memberId, form);
         Long searchPageCount = orderService.searchPageCount(memberId, form);
         log.info("searchForm.size() = {}",searchForm.size());
         log.info("searchPageCount = {}",searchPageCount);
 
-        for (OrderDTO order : searchForm) {
+        for (OrderDto order : searchForm) {
             log.info("orderId = {}",order.getId());
             log.info("orderType = {}",order.getOrderType());
             log.info("itemName = {}",order.getItemsName());
@@ -106,7 +106,7 @@ class OrderServiceTest {
     void findAll(){
         String memberId = "dowon456";
         SearchForm form = new SearchForm();
-        List<OrderDTO> findOrders = orderService.findAllPage(memberId, form);
+        List<OrderDto> findOrders = orderService.findAllPage(memberId, form);
 
         Assertions.assertThat(findOrders.size()).isEqualTo(5);
         Assertions.assertThat(findOrders.get(0).getId()).isEqualTo(161L);
