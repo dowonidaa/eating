@@ -163,7 +163,7 @@ public class CartController {
     @PostMapping("/{itemId}")
     public String getItemDetails(@PathVariable("itemId") Long itemId, Model model) {
         ItemDto findItem = itemService.findByItemFetchJoin(itemId);
-        List<ItemsDto> items = itemService.itemList(findItem.getShopId()).stream().filter(item -> !item.getItemId().equals(itemId)).toList();
+        List<ItemsDto> items = itemService.findItemsExcludingItemId(findItem.getShopId(), itemId);
         List<ItemOptionDto> itemOptions = findItem.getItemOptions()
                 .stream().sorted(Comparator.comparing(ItemOption::getPrice))
                 .map(ito -> new ItemOptionDto(ito.getId(), ito.getContent(), ito.getPrice()))

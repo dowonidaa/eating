@@ -54,4 +54,12 @@ public class ItemRepository {
     }
 
 
+    public List<Item> findItemsExcludingItemId(Long shopId, Long itemId) {
+
+        return queryFactory
+                .select(item)
+                .from(item)
+                .where(item.shop.shopId.eq(shopId), item.id.notIn(itemId))
+                .fetch();
+    }
 }
