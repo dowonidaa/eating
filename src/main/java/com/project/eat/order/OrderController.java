@@ -144,15 +144,13 @@ public class OrderController {
 
     @GetMapping("/orders/{orderId}")
     public String orderDetail(@PathVariable("orderId") Long orderId, HttpSession session, Model model, @ModelAttribute("message") String message) {
-        Order findOrder = orderService.findOne(orderId);
-        if (!findOrder.getMember().getId().equals(session.getAttribute("member_id"))) {
+        OrderDto findOrder = orderService.findOrderByIdFetchJoin(orderId);
+        if (!findOrder.getMemberId().equals(session.getAttribute("member_id"))) {
             return "redirect:/";
         }
         log.info("orderStatus = {}", findOrder.getOrderStatus());
         model.addAttribute("order", findOrder);
-        List<OrderItem> orderItems = findOrder.getOrderItems();
-        String itemName = orderItems.get(0).getItem().getItemName() + (orderItems.size() - 1 != 0 ? " 외 " + (orderItems.size() - 1) + "개" : "");
-        model.addAttribute("orderItems", itemName);
+        model.addAttribute("orderItems", findOrder.getItemsName());
 
         log.info(message);
         return "order/orderDetail";

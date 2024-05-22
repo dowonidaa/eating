@@ -66,6 +66,10 @@ public class Order {
 
     }
 
+    public int price() {
+        return this.totalPrice + this.orderPrice - this.discount;
+    }
+
 
 
 }

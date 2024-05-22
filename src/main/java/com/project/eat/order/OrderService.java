@@ -7,7 +7,9 @@ import com.project.eat.item.Item;
 import com.project.eat.member.MemberRepositoryEM;
 import com.project.eat.member.MemberVO_JPA;
 import com.project.eat.order.orderItem.OrderItem;
+import com.project.eat.order.orderItem.OrderItemDto;
 import com.project.eat.order.orderItemOption.OrderItemOption;
+import com.project.eat.order.orderItemOption.OrderItemOptionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -71,6 +73,36 @@ public class OrderService {
 
     public Order findOne(Long orderId) {
         return orderRepository.findOne(orderId);
+    }
+
+    public OrderDto findOrderByIdFetchJoin(Long orderId) {
+        Order findOrder = orderRepository.findOrderByIdFetchJoin(orderId);
+        List<OrderItemDto> orderItemDtos = findOrder.getOrderItems().stream().map(oi -> new OrderItemDto(oi.getPrice(),
+                oi.getItem().getItemName(),
+                oi.getOrderItemOptions().stream().map(oio->new OrderItemOptionDto(oio.getItemOption().getContent(), oio.getItemOption().getPrice())).toList(),
+                oi.getPrice(),
+                oi.getQuantity()
+        )).toList();
+        return new OrderDto(findOrder.getId(),
+                findOrder.price(),
+                findOrder.getOrderType(),
+                findOrder.getOrderStatus(),
+                findOrder.getPaymentMethod(),
+                findOrder.getShop().getShopId(),
+                findOrder.getShop().getShopThum(),
+                findOrder.getOrderDate(),
+                findOrder.getShop().getShopName(),
+                findOrder.getOrderItems().get(0).getItem().getItemName() + (findOrder.getOrderItems().size() - 1 != 0 ? " 외 " + (findOrder.getOrderItems().size() - 1) + "개" : ""),
+                false,
+                orderItemDtos,
+                findOrder.getOrderTel(),
+                findOrder.getMemberNotes(),
+                findOrder.getShop().getShopTel(),
+                findOrder.getOrderAddress(),
+                findOrder.getTotalPrice(),
+                findOrder.getOrderPrice(),
+                findOrder.getDiscount(),
+                findOrder.getMember().getId());
     }
 
     @Transactional
