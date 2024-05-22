@@ -101,7 +101,7 @@ public class OrderController {
     public String orderList(HttpSession session, Model model, @ModelAttribute("message") String message, SearchForm form) {
 
         String memberId = (String) session.getAttribute("member_id");
-        List<OrderDTO> ordersDto =  orderService.findAllPage(memberId, form);
+        List<OrderDto> ordersDto =  orderService.findAllPage(memberId, form);
         Long pageCount = orderService.pageCount(memberId, form);
 
         model.addAttribute("ordersDto", ordersDto);
@@ -123,7 +123,7 @@ public class OrderController {
 
         String memberId = (String) session.getAttribute("member_id");
         log.info("searchForm = {}", form);
-        List<OrderDTO> findOrders = orderService.findSearchForm(memberId, form);
+        List<OrderDto> findOrders = orderService.findSearchForm(memberId, form);
         Long searchPageCount = orderService.searchPageCount(memberId, form);
 
         model.addAttribute("ordersDto", findOrders);
