@@ -44,9 +44,9 @@ public class KakaoPayServiceImpl {
         parameters.put("quantity", String.valueOf(quantity));
         parameters.put("total_amount", String.valueOf(totalAmount));
         parameters.put("tax_free_amount", "0");
-        parameters.put("approval_url", "http://"+url+":8088/order/kakao/success");
-        parameters.put("cancel_url", "http://"+url+":8088/order/kakao/cancel?orderId="+orderId);
-        parameters.put("fail_url", "http://"+url+":8088/order/kakao/fail");
+        parameters.put("approval_url", "https://"+url+"/order/kakao/success");
+        parameters.put("cancel_url", "https://"+url+"/order/kakao/cancel?orderId="+orderId);
+        parameters.put("fail_url", "https://"+url+"/order/kakao/fail");
 
 
         // 헤더와 파라미터 정보 구성
