@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +22,7 @@ public class LogFilter  implements Filter {
         log.info("log filter doFilter");
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+
         String requestURI = httpRequest.getRequestURI();
         String uuid = UUID.randomUUID().toString();
 
