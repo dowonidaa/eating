@@ -1,4 +1,4 @@
-package com.project.eat.review;
+package com.project.eat.review.word;
 
 
 import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
@@ -7,7 +7,6 @@ import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.util.*;
 
@@ -154,8 +153,8 @@ public class WordAnalysisService implements IWordAnalysisService {
     }
 
     @Override
-    public int checkdoBadWord(String text) throws Exception {
-        int flag = 1;
+    public boolean checkdoBadWord(String text) throws Exception {
+        boolean flag = true;
 
         log.info(this.getClass().getName() + ".doWordAnalysis Start !");
 
@@ -192,7 +191,7 @@ public class WordAnalysisService implements IWordAnalysisService {
             for(String x: txt){
                 if(x.equals(vo[i])){
                     log.info("나쁜말존재 x:{}",x);
-                    flag = 0;
+                    flag = false;
                     return flag;
                 }
             }
@@ -205,7 +204,7 @@ public class WordAnalysisService implements IWordAnalysisService {
             for(String a: vo){
                 if(a.equals(str)){
                     log.info("rList 로 확인 !! 나쁜말존재 a:{}",a);
-                    flag = 0;
+                    flag = false;
                     return flag;
                 }
             }

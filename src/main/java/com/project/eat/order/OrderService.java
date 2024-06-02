@@ -132,6 +132,10 @@ public class OrderService {
         return orderDAOJpa.findByOrdersBetweenDates(memberId, startDate, endDate);
     }
 
+    public Order findOrderJoinMemberJoinShopById(Long id) {
+        return orderRepository.findOrderJoinMemberJoinShopById(id);
+    }
+
 
     @Transactional
     public List<OrderDto> findSearchForm(String memberId, SearchForm form) {

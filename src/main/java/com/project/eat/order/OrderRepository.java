@@ -3,6 +3,7 @@ package com.project.eat.order;
 import com.project.eat.cart.QCart;
 import com.project.eat.item.itemOption.QItemOption;
 import com.project.eat.order.orderItemOption.QOrderItemOption;
+import com.project.eat.shop.ShopService;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -31,11 +32,13 @@ public class OrderRepository {
 
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
+    private final ShopService shopService;
 
 
-    public OrderRepository(EntityManager em) {
+    public OrderRepository(EntityManager em, ShopService shopService) {
         this.em = em;
         this.queryFactory = new JPAQueryFactory(em);
+        this.shopService = shopService;
     }
 
     public void save(Order order) {
@@ -230,4 +233,12 @@ public class OrderRepository {
                 .fetchOne();
     }
 
+    public Order findOrderJoinMemberJoinShopById(Long id) {
+        return queryFactory
+                .select(order)
+                .from(order)
+                .join(order.member, memberVO_JPA).fetchJoin()
+                .join(order.shop, shopVO).fetchJoin()
+                .where(order.id.eq(id)).fetchOne();
+    }
 }

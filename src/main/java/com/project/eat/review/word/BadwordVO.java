@@ -1,10 +1,7 @@
-package com.project.eat.review;
+package com.project.eat.review.word;
 
-import com.project.eat.shop.ShopVO;
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.util.Date;
 
 @Data
 @Entity

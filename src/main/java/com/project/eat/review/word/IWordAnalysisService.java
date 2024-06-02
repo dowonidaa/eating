@@ -1,4 +1,4 @@
-package com.project.eat.review;
+package com.project.eat.review.word;
 
 import java.util.List;
 import java.util.Map;
@@ -13,5 +13,5 @@ public interface IWordAnalysisService {
     //분석할 문장의 자연어 처리 및 빈도수 분석 수행
     Map<String, Integer> doWordAnalysis(String text) throws Exception;
 
-    int checkdoBadWord(String text) throws Exception;
+    boolean checkdoBadWord(String text) throws Exception;
 }

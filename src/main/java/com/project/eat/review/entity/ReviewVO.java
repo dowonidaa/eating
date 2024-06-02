@@ -1,13 +1,12 @@
-package com.project.eat.review;
+package com.project.eat.review.entity;
 
-import com.project.eat.member.MemberVO_JPA;
 import com.project.eat.order.Order;
 import com.project.eat.shop.ShopVO;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -42,10 +41,13 @@ public class ReviewVO {
     @Column(name="review_coment")
     private String reviewComent;
 
-    @Column(name="review_pic")
-    private String reviewPic;
+    //    @Column(name="review_pic")
+//    private String reviewPic;
+    @OneToMany(mappedBy = "reviewVO")
+    @Column(name = "review_pic")
+    private List<ReviewPic> reviewPic;
 
-    @Column(name="created_at",insertable = false,
+    @Column(name = "created_at", insertable = false,
             columnDefinition = "DATETIME(0) DEFAULT CURRENT_TIMESTAMP")
     private Date createdAt;
 

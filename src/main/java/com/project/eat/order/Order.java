@@ -3,7 +3,7 @@ package com.project.eat.order;
 import com.project.eat.member.Coupon;
 import com.project.eat.member.MemberVO_JPA;
 import com.project.eat.order.orderItem.OrderItem;
-import com.project.eat.review.ReviewVO;
+import com.project.eat.review.entity.ReviewVO;
 import com.project.eat.shop.ShopVO;
 import jakarta.persistence.*;
 import lombok.Getter;

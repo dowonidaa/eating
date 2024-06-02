@@ -1,5 +1,7 @@
 package com.project.eat.review;
 
+import com.project.eat.review.entity.ReviewVO;
+import com.project.eat.review.service.ReviewService;
 import com.project.eat.shop.ShopService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -19,7 +21,7 @@ public class ReviewInterceptor {
     private ShopService shopService;
 //("execution(public * test..*DAO*.delete(..))")
     @AfterReturning(
-            pointcut = "execution(* com.project.eat.review.ReviewService.insertReview(..))",
+            pointcut = "execution(* com.project.eat.review.service.ReviewService.insertReview(..))",
             returning = "returnValue"
     )
     public void updateShopAverageRatingAfterReviewInsert(JoinPoint joinPoint, Object returnValue) {

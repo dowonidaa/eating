@@ -1,6 +1,7 @@
-package com.project.eat.review;
+package com.project.eat.review.repository;
 
 
+import com.project.eat.review.entity.ReviewVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

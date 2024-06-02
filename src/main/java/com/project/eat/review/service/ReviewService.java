@@ -1,5 +1,14 @@
-package com.project.eat.review;
+package com.project.eat.review.service;
 
+import com.project.eat.order.Order;
+import com.project.eat.order.OrderService;
+import com.project.eat.review.dto.RequestReview;
+import com.project.eat.review.entity.ReviewPic;
+import com.project.eat.review.entity.ReviewVO;
+import com.project.eat.review.repository.ReviewRepository;
+import com.project.eat.shop.ShopService;
+import com.project.eat.shop.ShopVO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,14 +16,43 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+
+    private final ImageStore imageStore;
+    private final ReviewPicService reviewPicService;
+    private final ReviewRepository reviewRepository;
+    private final OrderService orderService;
+
+    @Transactional
+    public void insertReview(RequestReview request){
+        List<ReviewPic> reviewPics = imageStore.storeFiles(request.getFiles());
+        Order joinOrder = orderService.findOrderJoinMemberJoinShopById(request.getOrderId());
+        reviewPicService.saveAll(reviewPics);
+        ReviewVO reviewVO = getReviewVO(request, reviewPics, joinOrder);
+        reviewRepository.save(reviewVO);
+        for (ReviewPic reviewPic : reviewPics) {
+            reviewPic.setReviewVO(reviewVO);
+        }
+        reviewPicService.saveAll(reviewPics);
+    }
 
 
-    public void insertReview(ReviewVO vo){
-        reviewRepository.save(vo);
+
+
+    private ReviewVO getReviewVO(RequestReview request, List<ReviewPic> reviewPics, Order joinOrder) {
+        ReviewVO reviewVO = new ReviewVO();
+        reviewVO.setReviewStar(request.getReviewStar());
+        reviewVO.setReviewComent(request.getReviewComment());
+        reviewVO.setReviewPic(reviewPics);
+        reviewVO.setOrder(joinOrder);
+        reviewVO.setShop(joinOrder.getShop());
+        reviewVO.setName(joinOrder.getMember().getName());
+        reviewVO.setReviewStar(request.getReviewStar());
+        reviewVO.setShopName(joinOrder.getShop().getShopName());
+        reviewVO.setShopId(joinOrder.getShop().getShopId());
+        return reviewVO;
     }
 
     // by shopId 리뷰리스트 전체조회
