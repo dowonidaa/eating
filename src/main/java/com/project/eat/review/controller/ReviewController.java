@@ -173,53 +173,16 @@ public class ReviewController {
             @RequestParam(name = "cpage", defaultValue = "1") int cpage,
             @RequestParam(name = "pageBlock", defaultValue = "3") int pageBlock,
             Model model, HttpSession session) {
-        // 로그인한 유저명
-        String name = "";
-        //세션처리
-        String memberId2 = (String) session.getAttribute("member_id");
-        if (memberId2 != null) {
-            MemberVO_JPA findMember = memberService.findOne(memberId2);
-            String mem = findMember.getId();
-            name = findMember.getName();
-
-            // 테이블 : member 의 num을 테이블:reivew 에서 userId
-            userId = memberService.findNumByMemberId(memberId2);
-
-
-            log.info(" 리뷰컨트롤러 num 확인: userId:{}", userId);
-            model.addAttribute("memberId", mem);
-            model.addAttribute("userId", userId);
-
-        }
-
-        log.info("reviewMypagedeleteOne-- reviewId:{}", reviewId);
-        log.info("reviewMypagedeleteOne-- memberId:{}", memberId);
-        log.info("reviewMypagedeleteOne-- userId:{}", userId);
-
-        // reviewId 로 삭제
+              // reviewId 로 삭제
         reviewService.deleteByReviewId(reviewId);
 
-        log.info("review_Mypage-- memberId:{}", memberId);
-        log.info("확인 !!! userId:{}", userId);
-
-        // 내가 작성한 리뷰리스트
         List<ReviewVO> myReviewList = reviewService.selectListByUserId(userId, cpage, pageBlock);
+        long totalPageCount = getTotalPageCount(pageBlock, reviewService.getTotalRowsByUserId(userId));
 
-        log.info("reviewMypagedeleteOne...... /reviewMypagedeleteOne...");
         model.addAttribute("myReviewList", myReviewList);
-
-
-        // by memberId : 총갯수
-        long total_rows = reviewService.getTotalRowsByUserId(userId);
-        log.info("total_rows:" + total_rows);
-        // 페이징처리계산식
-        long totalPageCount = getTotalPageCount(pageBlock, total_rows);
-
-        // 페이지처리 화면단에 전달
-        log.info("totalPageCount:" + totalPageCount);
         model.addAttribute("totalPageCount", totalPageCount);
 
-        return "thymeleaf/review/reviewMypageList";
+        return "redirect:thymeleaf/review/reviewMypageList";
     }
 
     private long getTotalPageCount(int pageBlock, long total_rows) {
