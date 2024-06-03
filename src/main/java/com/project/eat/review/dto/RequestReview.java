@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public class RequestReview {
 
+    private int reviewId;
     private int reviewStar;
     private String reviewComment;
     private List<MultipartFile> files;

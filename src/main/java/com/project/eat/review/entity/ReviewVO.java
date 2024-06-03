@@ -45,7 +45,7 @@ public class ReviewVO {
 //    private String reviewPic;
     @OneToMany(mappedBy = "reviewVO")
     @Column(name = "review_pic")
-    private List<ReviewPic> reviewPic;
+    private List<ReviewPic> reviewPics;
 
     @Column(name = "created_at", insertable = false,
             columnDefinition = "DATETIME(0) DEFAULT CURRENT_TIMESTAMP")

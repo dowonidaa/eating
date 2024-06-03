@@ -45,7 +45,6 @@ public class ReviewService {
         ReviewVO reviewVO = new ReviewVO();
         reviewVO.setReviewStar(request.getReviewStar());
         reviewVO.setReviewComent(request.getReviewComment());
-        reviewVO.setReviewPic(reviewPics);
         reviewVO.setOrder(joinOrder);
         reviewVO.setShop(joinOrder.getShop());
         reviewVO.setName(joinOrder.getMember().getName());
@@ -92,12 +91,17 @@ public class ReviewService {
     @Transactional
     public void update(ReviewVO updateReview) {
         ReviewVO findReview = reviewRepository.findOneByReviewId(updateReview.getReviewId());
-        if(!updateReview.getReviewPic().equals("")) {
-            findReview.setReviewPic(updateReview.getReviewPic());
-        }
         findReview.setReviewComent(updateReview.getReviewComent());
         findReview.setReviewStar(updateReview.getReviewStar());
         findReview.setShopName(updateReview.getShopName());
+
+    }
+
+    @Transactional
+    public void updateReview(RequestReview request) {
+        ReviewVO findReview = reviewRepository.findOneByReviewId(request.getReviewId());
+        findReview.setReviewComent(request.getReviewComment());
+        findReview.setReviewStar(request.getReviewStar());
 
     }
 }
