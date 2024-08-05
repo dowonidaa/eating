@@ -141,7 +141,9 @@ public class OrderService {
         List<OrderDto> orders = new ArrayList<>();
         for (Order order : findOrders) {
             boolean reviewExists = order.getReview() != null;
-            List<OrderItem> orderItems = order.getOrderItems();
+            List<OrderItem> orderItems = orderRepository.findOrderItemsByOrderId(order.getId());
+
+            log.info("orderItems.size() ={}", orderItems.size());
             String matchedItemName = orderItems.stream()
                     .map(OrderItem::getItem)
                     .map(Item::getItemName)
